@@ -8,6 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,14 @@ public class ResponseUtils {
             page = service.list(search, request, pageable);
         }
         return ResponseUtils.ok(page, baseUrl);
+    }
+
+    public static <D, E, R extends JpaSpecificationExecutor<E>, M extends EntityMapper<D, E>> Page<D> list(Specification<E> specification,
+                                                                                                           Pageable pageable,
+                                                                                                           R repository,
+                                                                                                           M mapper) {
+        Page<E> page = repository.findAll(specification, pageable);
+        return PaginationUtils.toDto(page, mapper);
     }
 
 }
